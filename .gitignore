@@ -1,2 +1,14 @@
-mode_modules
+
+node_modules/
 .env
+.env.*
+!.env.example
+
+client/dist/
+server/dist/
+
+server/uploads/
+
+.vercel/
+
+*.log
