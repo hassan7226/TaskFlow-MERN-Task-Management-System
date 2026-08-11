@@ -5,6 +5,8 @@ import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 import authRoute from "./routes/authRoute.js";
 import userRoute from "./routes/userRoute.js";
+import taskRoute from "./routes/taskRoute.js";
+import reportRoute from "./routes/reportRouter.js";
 import cookieParser from "cookie-parser";
 import upload from "./middlewares/uploadMiddleware.js";
 
@@ -32,6 +34,8 @@ app.use("/uploads", express.static("uploads"));
 //routes
 app.use("/api/auth", authRoute);
 app.use("/api/users", userRoute);
+app.use("/api/tasks", taskRoute);
+app.use("/api/reports", reportRoute);
 
 app.get("/", (req, res) => {
   res.send("API is running...");
