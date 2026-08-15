@@ -1,5 +1,5 @@
 import express from "express";
-import { auth, adminOnly } from "../middleware/userAuth.js";
+import {auth, adminOnly} from "../middlewares/userAuth.js";
 import { taskReport, userReport } from "../controllers/reportController.js";
 
 const router = express.Router();

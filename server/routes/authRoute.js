@@ -7,6 +7,7 @@ import { registerUser, loginUser, getUserProfile, updateUserProfile, deleteUserP
   import {auth} from "../middlewares/userAuth.js";
   import upload from "../middlewares/uploadMiddleware.js";
 
+
 router.post("/register", registerUser);
 router.post("/login", loginUser);
 router.get("/profile", getUserProfile);

@@ -1,5 +1,5 @@
 import React from 'react'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import Dashboard from './pages/Admin/Dashboard'
 import CreateTask from './pages/Admin/CreateTask'
 import ManageTasks from './pages/Admin/ManageTasks'
@@ -10,15 +10,18 @@ import UserDashboard from './pages/User/UserDashboard'
 import ViewTaskDetails from './pages/User/ViewTaskDetails'
 import MyTasks from './pages/User/MyTasks'
 import PrivateRoute from './routes/PrivateRoute'
+import EmailVerify from './pages/Auth/EmailVerify'
+import ResetPassword from './pages/Auth/ResetPassword'
 
 
 const App = () => {
   return (
     <div>
-      <Router>
         <Routes>
           <Route path='/login' element={<Login />} />
           <Route path='/signup' element={<Signup />} />
+          <Route path='/verify-email' element={<EmailVerify />} />
+          <Route path='/reset-password' element={<ResetPassword />} />  
 
           {/* Admin Routes */}
           <Route element={<PrivateRoute allowedRoles={['admin']} />}>
@@ -36,7 +39,6 @@ const App = () => {
           
           </Route>
         </Routes>
-      </Router>
     </div>
   )
 }

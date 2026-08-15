@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
 import connectDB from "./config/db.js";
 import authRoute from "./routes/authRoute.js";
 import userRoute from "./routes/userRoute.js";
@@ -9,6 +11,9 @@ import taskRoute from "./routes/taskRoute.js";
 import reportRoute from "./routes/reportRouter.js";
 import cookieParser from "cookie-parser";
 import upload from "./middlewares/uploadMiddleware.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 dotenv.config();
 const port = process.env.PORT || 5000;
@@ -29,7 +34,7 @@ app.use(
 );
 
 //uploads folder static
-app.use("/uploads", express.static("uploads"));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 //routes
 app.use("/api/auth", authRoute);
