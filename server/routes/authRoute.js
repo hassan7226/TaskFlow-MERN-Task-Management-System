@@ -10,9 +10,9 @@ import { registerUser, loginUser, getUserProfile, updateUserProfile, deleteUserP
 
 router.post("/register", registerUser);
 router.post("/login", loginUser);
-router.get("/profile", getUserProfile);
-router.put("/update-profile", updateUserProfile);
-router.delete("/delete-profile", deleteUserProfile);
+router.get("/profile", auth, getUserProfile);
+router.put("/update-profile", auth, updateUserProfile);
+router.delete("/delete-profile", auth, deleteUserProfile);
 router.post("/logout", logoutUser);
 router.post("/send-verify-otp",auth, sendVerifyOtp);
 router.post("/verify-account", auth, verifyOtp);

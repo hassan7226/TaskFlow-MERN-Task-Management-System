@@ -6,6 +6,7 @@ import { validateEmail } from '../../utils/helper'
 import { useNavigate } from 'react-router-dom'
 import API from '../../utils/axios'
 import { uploadProfileImage } from '../../utils/imageupload'
+import { useUser } from '../../context/UserContext'
 
 const Signup = () => {
   const [email, setEmail] = React.useState('')
@@ -16,6 +17,7 @@ const Signup = () => {
   const [error, setError] = React.useState('')
   const [isSubmitting, setIsSubmitting] = React.useState(false)
   const navigate = useNavigate()
+  const { setUser } = useUser()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -54,8 +56,24 @@ const Signup = () => {
         adminInviteToken: adminInviteCode.trim() || undefined,
       }
 
-      await API.post('/auth/register', payload)
-      navigate('/login')
+      const response = await API.post('/auth/register', payload)
+      const { id, name: userName, email: userEmail, profileImageUrl: returnedProfileImageUrl, role } = response.data
+
+      // Set user data in context
+      setUser({
+        id,
+        name: userName,
+        email: userEmail,
+        profileImageUrl: returnedProfileImageUrl,
+        role
+      })
+
+      // Redirect based on role
+      if (role === 'admin') {
+        navigate('/admin/dashboard')
+      } else {
+        navigate('/user/dashboard')
+      }
     } catch (err) {
       const message = err?.response?.data?.message || 'Signup failed. Please try again.'
       setError(message)

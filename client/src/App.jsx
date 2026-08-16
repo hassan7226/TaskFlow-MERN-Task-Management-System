@@ -16,12 +16,12 @@ import ResetPassword from './pages/Auth/ResetPassword'
 
 const App = () => {
   return (
-    <div>
+    <div className="w-full">
         <Routes>
           <Route path='/login' element={<Login />} />
           <Route path='/signup' element={<Signup />} />
           <Route path='/verify-email' element={<EmailVerify />} />
-          <Route path='/reset-password' element={<ResetPassword />} />  
+          <Route path='/reset-password' element={<ResetPassword />} />
 
           {/* Admin Routes */}
           <Route element={<PrivateRoute allowedRoles={['admin']} />}>
@@ -32,11 +32,10 @@ const App = () => {
           </Route>
 
           {/* User Routes */}
-          <Route element={<PrivateRoute allowedRoles={['user']} />}>
+          <Route element={<PrivateRoute allowedRoles={['member']} />}>
           <Route path='/user/dashboard' element={<UserDashboard />} />
           <Route path='/user/my-tasks' element={<MyTasks />} />
           <Route path='/user/view-task' element={<ViewTaskDetails />} />
-          
           </Route>
         </Routes>
     </div>

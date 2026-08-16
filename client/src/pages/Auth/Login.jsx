@@ -5,12 +5,14 @@ import { useNavigate } from 'react-router-dom'
 import Input from '../../components/input/input'
 import { validateEmail } from '../../utils/helper'
 import API from '../../utils/axios'
+import { useUser } from '../../context/UserContext'
 
 const Login = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const navigate = useNavigate()
+  const { setUser } = useUser()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -32,15 +34,24 @@ const Login = () => {
 
     try {
     const response = await API.post('/auth/login', { email, password })
-      const { role } = response.data
+      const { role, id, name, email: userEmail, profileImageUrl } = response.data
+
+      // Set user data in context
+      setUser({
+        id,
+        name,
+        email: userEmail,
+        profileImageUrl,
+        role
+      })
 
      // Redirect to the appropriate dashboard based on the role
      if (role === 'admin') {
        navigate('/admin/dashboard')
-     } 
+     }
      else {
        navigate('/user/dashboard')
-     } 
+     }
     }
 
     catch(error) {
