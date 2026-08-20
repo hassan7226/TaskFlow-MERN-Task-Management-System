@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema({
     type: String,required: true, unique: true
   },
   password: {
-    type: String,  required: true, unique: true
+    type: String,  required: true
   },
   profileImageUrl: {
     type: String, default: null
@@ -16,14 +16,10 @@ const userSchema = new mongoose.Schema({
   role: {
     type: String, enum: ['admin', 'member'], default: 'member'
   },
-  verifyOtp: {
-    type: String, default: ''
-  },
-  verifyOtpExpiry: {
-    type: Number, default: 0
-  },
-  isAccountVerified: {
-    type: Boolean, default: false
+  adminId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'userModel',
+    default: null
   },
   resetOtp: {
     type: String, default: ''

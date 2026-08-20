@@ -5,15 +5,17 @@ import { auth, adminOnly } from "../middlewares/userAuth.js";
 
 export const getUsers = async (req, res) => {
     try{
-        const users = await userModel.find({ role: "member" }).select("-password");
+        // Filter users by admin's tenant
+       const adminFilter = req.user.role === "admin" ? { adminId: req.user._id } : { adminId: req.user.adminId };
+        const users = await userModel.find({ ...adminFilter, role: "member" }).select("-password");
 
         //add task count to each user
         const usersWithTaskCount = await Promise.all(
             users.map(async (user) => {
 
-            const pendingTasks = await taskModel.countDocuments({ assignedTo: user._id, status: "pending" });
-            const inProgressTasks = await taskModel.countDocuments({ assignedTo: user._id, status: "in-progress" });
-            const completedTasks = await taskModel.countDocuments({ assignedTo: user._id, status: "completed" });
+            const pendingTasks = await taskModel.countDocuments({ assignedTo: user._id, status: "pending", adminId: req.user.role === "admin" ? req.user._id : req.user.adminId });
+            const inProgressTasks = await taskModel.countDocuments({ assignedTo: user._id, status: "in-progress", adminId: req.user.role === "admin" ? req.user._id : req.user.adminId });
+            const completedTasks = await taskModel.countDocuments({ assignedTo: user._id, status: "completed", adminId: req.user.role === "admin" ? req.user._id : req.user.adminId });
             return { ...user._doc, pendingTasks, inProgressTasks, completedTasks };
         }));
 

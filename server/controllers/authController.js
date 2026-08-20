@@ -1,4 +1,5 @@
 import userModel from "../models/User.js";
+import Invitation from "../models/Invitation.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
@@ -15,26 +16,68 @@ const generateToken = (user) => {
 //register user
 export const registerUser = async (req, res) => {
     try {
-        const { name, email, password, profileImageUrl, adminInviteToken } = req.body;
-        
+        console.log('Signup request body:', req.body);
+        const { name, email, password, profileImageUrl, role, invitationToken } = req.body;
+
         if(!name || !email || !password) {
+            console.log('Missing required fields');
             return res.status(400).json({ message: "Please fill all the fields" });
+        }
+
+        if(!role || !['admin', 'member'].includes(role)) {
+            console.log('Invalid role:', role);
+            return res.status(400).json({ message: "Please select a valid role (admin or member)" });
         }
 
         const existingUser = await userModel.findOne({email});
         if(existingUser) {
+            console.log('User already exists:', email);
             return res.status(400).json({ message: "User already exists" });
         }
 
-        //admin invite token check
-        let role = "member";
-        if(adminInviteToken === process.env.ADMIN_INVITE_TOKEN) {
-            role = "admin";
+        let adminId = null;
+        
+        if(role === "admin") {
+            console.log('Creating admin account');
+            // Admins are their own tenant (adminId remains null)
+            // No invitation needed for admins
+        } else {
+            console.log('Creating member account');
+            // Members require an invitation token
+            if (!invitationToken) {
+                return res.status(400).json({ message: "Invitation token is required for team members" });
+            }
+
+            const invitation = await Invitation.findOne({ token: invitationToken, status: 'pending' });
+
+            if (!invitation) {
+                return res.status(400).json({ message: "Invalid or expired invitation" });
+            }
+
+            if (invitation.email !== email.toLowerCase()) {
+                return res.status(400).json({ message: "Invitation email does not match" });
+            }
+
+            if (invitation.isExpired()) {
+                await Invitation.findByIdAndUpdate(invitation._id, { status: 'expired' });
+                return res.status(400).json({ message: "Invitation has expired" });
+            }
+
+            // Members are linked to the admin who invited them
+            adminId = invitation.invitedBy;
+            
+            // Mark invitation as accepted immediately after validation
+            await Invitation.findByIdAndUpdate(invitation._id, {
+                status: 'accepted',
+                acceptedAt: new Date()
+            });
         }
 
         //hash password
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+        console.log('Creating user with role:', role, 'adminId:', adminId);
 
         //create user
         const user = await userModel.create({
@@ -42,9 +85,12 @@ export const registerUser = async (req, res) => {
             email,
             password: hashedPassword,
             profileImageUrl,
-            role
+            role,
+            adminId
         });
-        
+
+        console.log('User created successfully:', user._id);
+
      /*    res.cookie("token", generateToken(user), {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
@@ -52,16 +98,21 @@ export const registerUser = async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
         }); */
 
-        //send email
-        const mailOptions = {
-            from: process.env.SENDER_EMAIL,
-            to: user.email,
-            subject: "Welcome to Task Manager App",
-            text: `Hello ${user.name},\n\nWelcome to Task Manager App! Your account has been successfully created.\n\nBest regards,\nTask Manager App Team`
-        };
-        await transporter.sendMail(mailOptions);
+        //send email (optional - if email fails, still complete signup)
+        try {
+            const mailOptions = {
+                from: process.env.SENDER_EMAIL,
+                to: user.email,
+                subject: "Welcome to Task Manager App",
+                text: `Hello ${user.name},\n\nWelcome to Task Manager App! Your account has been successfully created.\n\nBest regards,\nTask Manager App Team`
+            };
+            await transporter.sendMail(mailOptions);
+        } catch (emailError) {
+            console.warn('Email sending failed during signup:', emailError.message);
+            // Continue without failing - the user account is still created
+        }
 
-        res.status(201).json({ 
+        res.status(201).json({
             id: user._id,
             name: user.name,
             email: user.email,
@@ -71,6 +122,11 @@ export const registerUser = async (req, res) => {
             message: "User created successfully"});
 
     } catch (error) {
+        console.error('=== SIGNUP ERROR ===');
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+        console.error('Request body:', req.body);
+        console.error('===================');
         res.status(500).json({ message: "Server error", error: error.message });
     }
 };
@@ -176,66 +232,6 @@ export const logoutUser = (req, res) => {
             sameSite: process.env.NODE_ENV === "production" ? "none" : "strict"
         });
         res.status(200).json({ message: "User logged out successfully" });
-    } catch (error) {
-        res.status(500).json({ message: "Server error", error: error.message });
-    }
-};
-
-//send otp for email verification
-export const sendVerifyOtp = async (req,res) => {
-    try {
-        const user = req.user;
-        if (user.isAccountVerified) {
-            return res.status(200).json({ message: "User is already verified" });
-        }
-        const otp = Math.floor(100000 + Math.random() * 900000);
-        user.verifyOtp = otp;
-        user.verifyOtpExpiry = Date.now() + 10 * 60 * 1000; // 10 minutes
-        await user.save();
-        await transporter.sendMail({
-            from: process.env.SENDER_EMAIL,
-            to: user.email,
-            subject: "Email Verification",
-            text: `Your OTP for email verification is: ${otp}`
-        });
-        res.status(200).json({ message: `OTP sent successfully to ${user.email}` });
-    } catch (error) {
-        res.status(500).json({ message: "Server error", error: error.message });
-    }
-};
-
-//verify otp for email verification
-export const verifyOtp = async (req,res) => {
-    try {
-        const {  otp } = req.body;
-        const user = req.user
-        if (!user) {
-            return res.status(404).json({ message: "User not found" }); 
-        }
-        if (user.verifyOtp !== otp) {
-            return res.status(400).json({ message: "Invalid OTP" });
-        }
-        if (Date.now() > user.verifyOtpExpiry) {
-            return res.status(400).json({ message: "OTP expired" });
-        }
-        user.isAccountVerified = true;
-        user.verifyOtp = '';
-        user.verifyOtpExpiry = 0;
-        await user.save();
-        res.status(200).json({ message: "Email verified successfully" });
-    } catch (error) {
-        res.status(500).json({ message: "Server error", error: error.message });
-    }
-};
-
-//check if user is verified
-export const isUserVerified = async (req,res) => {
-    try {
-        const user = req.user;
-        if (!user) {
-            return res.status(404).json({ message: "User not found" });
-        }
-        res.status(200).json({ isVerified: user.isAccountVerified });
     } catch (error) {
         res.status(500).json({ message: "Server error", error: error.message });
     }

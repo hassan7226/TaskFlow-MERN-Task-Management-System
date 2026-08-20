@@ -8,17 +8,18 @@ export const getTasks = async (req, res) => {
         if(status){
             filter.status = status;
         }
-        let tasks;
+        
+        // Add tenant filtering
         if(req.user.role === "admin"){
-            tasks = await taskModel.find(filter).populate(
-                "assignedTo",
-                 "name email  profileImageUrl").populate("createdBy", "name email profileImageUrl");
+            filter.adminId = req.user._id;
+        } else {
+            filter.adminId = req.user.adminId;
+            filter.assignedTo = req.user._id;
         }
-        else{
-            tasks = await taskModel.find({ ...filter, assignedTo: req.user._id }).populate(
-                "assignedTo", "name email profileImageUrl").populate(
-                    "createdBy", "name email profileImageUrl");
-        }
+        
+        let tasks = await taskModel.find(filter).populate(
+            "assignedTo",
+             "name email  profileImageUrl").populate("createdBy", "name email profileImageUrl");
 
 //add todoChecklist count to each task
    
@@ -29,24 +30,23 @@ export const getTasks = async (req, res) => {
         return { ...task._doc, completedTodoCount };
     })) 
 
-    //status summary counts
-    const allTasks = await taskModel.countDocuments(
-        req.user.role === "admin" ? {} : { assignedTo: req.user._id }
-    );
+    //status summary counts with tenant filtering
+    const adminFilter = req.user.role === "admin" ? { adminId: req.user._id } : { adminId: req.user.adminId, assignedTo: req.user._id };
+    const allTasks = await taskModel.countDocuments(adminFilter);
     
     //pending tasks count
     const pendingTasks = await taskModel.countDocuments(
-        { ...filter, status: "pending", ...(req.user.role !== "admin" && { assignedTo: req.user._id }) }
+        { ...filter, status: "pending", ...adminFilter }
     );
 
     //in-progress tasks count
     const inProgressTasks = await taskModel.countDocuments(
-        { ...filter, status: "in-progress", ...(req.user.role !== "admin" && { assignedTo: req.user._id }) }
+        { ...filter, status: "in-progress", ...adminFilter }
     );
 
     //completed tasks count
     const completedTasks = await taskModel.countDocuments(
-        { ...filter, status: "completed", ...(req.user.role !== "admin" && { assignedTo: req.user._id }) }
+        { ...filter, status: "completed", ...adminFilter }
     );
 
     res.status(200).json({
@@ -93,6 +93,9 @@ export const createTask = async (req, res) => {
             return res.status(400).json({ message: "assignedTo must be an array of user IDs" });
         }
 
+        // Set adminId based on user role
+        const adminId = req.user.role === "admin" ? req.user._id : req.user.adminId;
+
         const task = await taskModel.create({
             title,
             description,
@@ -102,7 +105,8 @@ export const createTask = async (req, res) => {
             assignedTo,
             attachments,
             todoChecklist,
-            createdBy: req.user._id
+            createdBy: req.user._id,
+            adminId
         });
 
         res.status(201).json({ message: "Task created successfully", task })}
@@ -254,17 +258,21 @@ export const updateTodoChecklist = async (req, res) => {
 
 export const getDashboardData = async (req, res) => {
     try{
+        // Filter by admin's tenant
+        const adminFilter = { adminId: req.user._id };
+        
         //fetch statistics for dashboard
-        const totalTasks = await taskModel.countDocuments();
-        const completedTasks = await taskModel.countDocuments({ status: "completed" });
-        const inProgressTasks = await taskModel.countDocuments({ status: "in-progress" });
-        const pendingTasks = await taskModel.countDocuments({ status: "pending" });
-        const overdueTasks = await taskModel.countDocuments({ dueDate: { $lt: new Date() }, status: { $ne: "completed" } });
+        const totalTasks = await taskModel.countDocuments(adminFilter);
+        const completedTasks = await taskModel.countDocuments({ ...adminFilter, status: "completed" });
+        const inProgressTasks = await taskModel.countDocuments({ ...adminFilter, status: "in-progress" });
+        const pendingTasks = await taskModel.countDocuments({ ...adminFilter, status: "pending" });
+        const overdueTasks = await taskModel.countDocuments({ ...adminFilter, dueDate: { $lt: new Date() }, status: { $ne: "completed" } });
         
 
         //ensure all possible statuses are included
         const taskStatuses = ["pending", "in-progress", "completed"];
         const taskDistributionRaw = await taskModel.aggregate([
+            { $match: adminFilter },
             { $group: { _id: "$status", count: { $sum: 1 } } }
         ]);
 
@@ -278,6 +286,7 @@ export const getDashboardData = async (req, res) => {
         // ensure all possible priorities are included
         const taskPriorities = ["low", "medium", "high"];
         const priorityDistributionRaw = await taskModel.aggregate([
+            { $match: adminFilter },
             { $group: { _id: "$priority", count: { $sum: 1 } } }
         ]);
 
@@ -287,7 +296,7 @@ export const getDashboardData = async (req, res) => {
         }, {});
 
         // fetch recent 10 tasks for dashboard
-        const recentTasks = await taskModel.find().sort({ createdAt: -1 }).limit(10)
+        const recentTasks = await taskModel.find(adminFilter).sort({ createdAt: -1 }).limit(10)
         .select("title status priority dueDate createdAt");
 
         res.status(200).json({
@@ -313,16 +322,19 @@ export const getDashboardData = async (req, res) => {
 export const userDashboardData = async (req, res) => {
     try{
         const userId = req.user._id;
-        const totalTasks = await taskModel.countDocuments({ assignedTo: userId });
-        const completedTasks = await taskModel.countDocuments({ assignedTo: userId, status: "completed" });
-        const inProgressTasks = await taskModel.countDocuments({ assignedTo: userId, status: "in-progress" });
-        const pendingTasks = await taskModel.countDocuments({ assignedTo: userId, status: "pending" });
-        const overdueTasks = await taskModel.countDocuments({ assignedTo: userId, dueDate: { $lt: new Date() }, status: { $ne: "completed" } });
+        const adminFilter = { adminId: req.user.adminId };
+        const userFilter = { ...adminFilter, assignedTo: userId };
+        
+        const totalTasks = await taskModel.countDocuments(userFilter);
+        const completedTasks = await taskModel.countDocuments({ ...userFilter, status: "completed" });
+        const inProgressTasks = await taskModel.countDocuments({ ...userFilter, status: "in-progress" });
+        const pendingTasks = await taskModel.countDocuments({ ...userFilter, status: "pending" });
+        const overdueTasks = await taskModel.countDocuments({ ...userFilter, dueDate: { $lt: new Date() }, status: { $ne: "completed" } });
 
         // ensure all possible statuses are included
         const taskStatuses = ["pending", "in-progress", "completed"];
         const taskDistributionRaw = await taskModel.aggregate([
-            { $match: { assignedTo: userId } },
+            { $match: userFilter },
             { $group: { _id: "$status", count: { $sum: 1 } } }
         ]);
         const taskDistribution = taskStatuses.reduce((acc, status) => {
@@ -335,7 +347,7 @@ export const userDashboardData = async (req, res) => {
         // ensure all possible priorities are included
         const taskPriorities = ["low", "medium", "high"];
         const priorityDistributionRaw = await taskModel.aggregate([
-            { $match: { assignedTo: userId } },
+            { $match: userFilter },
             { $group: { _id: "$priority", count: { $sum: 1 } } }
         ]);
 
@@ -345,7 +357,7 @@ export const userDashboardData = async (req, res) => {
         }, {});
 
         // fetch recent 10 tasks for dashboard
-        const recentTasks = await taskModel.find({assignedTo: userId}).sort({ createdAt: -1 }).limit(10)
+        const recentTasks = await taskModel.find(userFilter).sort({ createdAt: -1 }).limit(10)
         .select("title status priority dueDate createdAt");
 
         res.status(200).json({

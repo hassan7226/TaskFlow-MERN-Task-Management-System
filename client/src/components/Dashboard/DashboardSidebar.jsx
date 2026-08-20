@@ -1,6 +1,6 @@
 import React from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { LuLayoutDashboard, LuListTodo, LuPlus, LuUsers, LuLogOut, LuX } from 'react-icons/lu'
+import { LuLayoutDashboard, LuListTodo, LuPlus, LuUsers, LuMail, LuLogOut, LuX } from 'react-icons/lu'
 import { useUser } from '../../context/UserContext'
 
 const DashboardSidebar = ({ isOpen, onClose, user }) => {
@@ -14,29 +14,35 @@ const DashboardSidebar = ({ isOpen, onClose, user }) => {
   }
 
   const navItems = [
-    { 
-      path: '/admin/dashboard', 
-      icon: LuLayoutDashboard, 
+    {
+      path: '/admin/dashboard',
+      icon: LuLayoutDashboard,
       label: 'Dashboard',
       description: 'Overview and stats'
     },
-    { 
-      path: '/admin/manage-tasks', 
-      icon: LuListTodo, 
+    {
+      path: '/admin/manage-tasks',
+      icon: LuListTodo,
       label: 'Tasks',
       description: 'Manage all tasks'
     },
-    { 
-      path: '/admin/create-task', 
-      icon: LuPlus, 
+    {
+      path: '/admin/create-task',
+      icon: LuPlus,
       label: 'Create Task',
       description: 'Add new task'
     },
-    { 
-      path: '/admin/manage-user', 
-      icon: LuUsers, 
+    {
+      path: '/admin/manage-user',
+      icon: LuUsers,
       label: 'Team',
       description: 'Team members'
+    },
+    {
+      path: '/admin/invite-user',
+      icon: LuMail,
+      label: 'Invite User',
+      description: 'Send invitations'
     },
   ]
 
@@ -108,8 +114,8 @@ const DashboardSidebar = ({ isOpen, onClose, user }) => {
             </div>
           </div>
 
-          <nav className="flex-1 p-4">
-            <div className="mb-6">
+          <nav className="flex-1 p-2 ">
+            <div className="mb-2">
               <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 px-3">
                 Main Menu
               </p>
@@ -122,7 +128,7 @@ const DashboardSidebar = ({ isOpen, onClose, user }) => {
                       <button
                         onClick={() => handleNavClick(item.path)}
                         className={`
-                          w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium
+                          w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium
                           transition-all duration-200 group relative overflow-hidden
                           ${active
                             ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/25'
@@ -130,7 +136,7 @@ const DashboardSidebar = ({ isOpen, onClose, user }) => {
                           }
                         `}
                       >
-                        <Icon size={20} className={active ? 'text-white' : 'text-slate-500 group-hover:text-slate-700'} />
+                        <Icon size={18} className={active ? 'text-white' : 'text-slate-500 group-hover:text-slate-700'} />
                         <div className="flex-1 text-left">
                           <span className="block">{item.label}</span>
                           <span className={`text-xs ${active ? 'text-indigo-100' : 'text-slate-400'}`}>
@@ -148,7 +154,7 @@ const DashboardSidebar = ({ isOpen, onClose, user }) => {
             </div>
           </nav>
 
-          <div className="p-4 border-t border-slate-200/60">
+          <div className=" border-t border-slate-200/60">
             <button
               onClick={handleLogout}
               className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 transition-all duration-200 group"

@@ -104,9 +104,6 @@ const Login = () => {
               <button type="button" className="text-sm auth-link text-left" onClick={() => navigate('/reset-password')}>
                 Forgot Password?
               </button>
-              <button type="button" className="text-sm auth-link text-left sm:text-right" onClick={() => navigate('/verify-email')}>
-                Verify Email
-              </button>
             </div>
 
             <button className="btn-primary w-full">
