@@ -1,21 +1,24 @@
 import React, { useState, useEffect } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
 import DashboardLayout from '../../components/Dashboard/DashboardLayout'
 import API from '../../utils/axios'
-import { useNavigate } from 'react-router-dom'
-import { LuPlus, LuX, LuUpload, LuUsers } from 'react-icons/lu'
+import { LuPlus, LuX, LuUpload, LuUsers, LuTrash2 } from 'react-icons/lu'
 
-const CreateTask = () => {
+const UpdateTask = () => {
+  const { taskId } = useParams()
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [users, setUsers] = useState([])
   const [showMemberModal, setShowMemberModal] = useState(false)
+  const [fetchLoading, setFetchLoading] = useState(true)
 
   // Form state
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     priority: 'medium',
+    status: 'pending',
     dueDate: '',
     assignedTo: [],
     attachments: [],
@@ -25,26 +28,41 @@ const CreateTask = () => {
   // Todo checklist state
   const [newTodo, setNewTodo] = useState('')
 
-  // Fetch users for assignment
+  // Fetch task data and users
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchData = async () => {
       try {
-        const response = await API.get('/users')
-        console.log('Users response:', response.data)
-        setUsers(response.data || [])
+        setFetchLoading(true)
+        
+        // Fetch task data
+        const taskResponse = await API.get(`/tasks/${taskId}`)
+        const task = taskResponse.data.task
+        
+        setFormData({
+          title: task.title || '',
+          description: task.description || '',
+          priority: task.priority || 'medium',
+          status: task.status || 'pending',
+          dueDate: task.dueDate ? task.dueDate.split('T')[0] : '',
+          assignedTo: task.assignedTo?.map(user => user._id || user.id) || [],
+          attachments: task.attachments || [],
+          todoChecklist: task.todoChecklist || []
+        })
+
+        // Fetch users for assignment
+        const usersResponse = await API.get('/users')
+        setUsers(usersResponse.data || [])
       } catch (error) {
-        console.error('Failed to fetch users:', error)
-        // Try to get all users including admins if member-only fails
+        console.error('Failed to fetch data:', error)
+        setError('Failed to load task data')
+        
+        // Try to get users at least
         try {
           const authResponse = await API.get('/auth/profile')
-          console.log('Auth profile:', authResponse.data)
-          // For now, just use the current user as fallback
           if (authResponse.data?.user) {
             setUsers([authResponse.data.user])
           }
         } catch (authError) {
-          console.error('Failed to get auth profile:', authError)
-          // Final fallback - add a dummy user for testing
           setUsers([{
             _id: 'test-user-1',
             name: 'Test User',
@@ -52,10 +70,13 @@ const CreateTask = () => {
             profileImageUrl: null
           }])
         }
+      } finally {
+        setFetchLoading(false)
       }
     }
-    fetchUsers()
-  }, [])
+    
+    fetchData()
+  }, [taskId])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -109,7 +130,6 @@ const CreateTask = () => {
         const response = await API.post('/auth/upload-image', formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         })
-        console.log('Upload response:', response.data)
         return response.data.imageUrl
       })
 
@@ -153,11 +173,28 @@ const CreateTask = () => {
 
     try {
       setLoading(true)
-      const response = await API.post('/tasks', formData)
+      await API.put(`/tasks/${taskId}`, formData)
       navigate('/admin/manage-tasks')
     } catch (error) {
-      console.error('Failed to create task:', error)
-      setError(error.response?.data?.message || 'Failed to create task')
+      console.error('Failed to update task:', error)
+      setError(error.response?.data?.message || 'Failed to update task')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleDeleteTask = async () => {
+    if (!window.confirm('Are you sure you want to delete this task? This action cannot be undone.')) {
+      return
+    }
+
+    try {
+      setLoading(true)
+      await API.delete(`/tasks/${taskId}`)
+      navigate('/admin/manage-tasks')
+    } catch (error) {
+      console.error('Failed to delete task:', error)
+      setError(error.response?.data?.message || 'Failed to delete task')
     } finally {
       setLoading(false)
     }
@@ -167,15 +204,40 @@ const CreateTask = () => {
     return users.filter(user => formData.assignedTo.includes(user._id || user.id))
   }
 
+  if (fetchLoading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
+          <div className="text-center">
+            <div className="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-slate-600 font-medium">Loading task data...</p>
+          </div>
+        </div>
+      </DashboardLayout>
+    )
+  }
+
   return (
     <DashboardLayout>
       <div className="max-h-screen overflow-y-auto py-6 px-4 animate-fade-in">
         <div className="max-w-3xl mx-auto space-y-6">
 
           {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Create New Task</h1>
-            <p className="text-slate-600 mt-1 text-sm">Fill in the details below to create a new task for your team.</p>
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Update Task</h1>
+              <p className="text-slate-600 mt-1 text-sm">Edit the task details below.</p>
+            </div>
+            <button
+              type="button"
+              onClick={handleDeleteTask}
+              disabled={loading}
+              className="px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-xl font-semibold hover:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center gap-2"
+              title="Delete Task"
+            >
+              <LuTrash2 size={16} />
+              <span>Delete</span>
+            </button>
           </div>
 
           {/* Form */}
@@ -218,8 +280,21 @@ const CreateTask = () => {
               />
             </div>
 
-            {/* Priority, Due Date, and Assigned To */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {/* Status, Priority, Due Date, and Assigned To */}
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">Status</label>
+                <select
+                  name="status"
+                  value={formData.status}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all bg-white text-sm appearance-none cursor-pointer"
+                >
+                  <option value="pending">Pending</option>
+                  <option value="in-progress">In Progress</option>
+                  <option value="completed">Completed</option>
+                </select>
+              </div>
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-2">Priority</label>
                 <select
@@ -388,7 +463,7 @@ const CreateTask = () => {
                 disabled={loading}
                 className="flex-1 px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-semibold shadow-lg shadow-indigo-500/25 hover:shadow-xl hover:shadow-indigo-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm"
               >
-                {loading ? 'Creating Task...' : 'Create Task'}
+                {loading ? 'Updating Task...' : 'Update Task'}
               </button>
             </div>
           </form>
@@ -466,4 +541,4 @@ const CreateTask = () => {
   )
 }
 
-export default CreateTask
+export default UpdateTask

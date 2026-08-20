@@ -1,21 +1,21 @@
-import React from 'react'
+import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import AuthLayout from '../../components/Layout/AuthLayout'
 import Input from '../../components/input/input'
 import ProfilePhotoSelecter from '../../components/input/ProfilePhotoSelecter'
 import { validateEmail } from '../../utils/helper'
-import { useNavigate } from 'react-router-dom'
 import API from '../../utils/axios'
 import { uploadProfileImage } from '../../utils/imageupload'
 import { useUser } from '../../context/UserContext'
 
 const Signup = () => {
-  const [email, setEmail] = React.useState('')
-  const [name, setName] = React.useState('')
-  const [password, setPassword] = React.useState('')
-  const [profilePicture, setProfilePicture] = React.useState(null)
-  const [adminInviteCode, setAdminInviteCode] = React.useState('')
-  const [error, setError] = React.useState('')
-  const [isSubmitting, setIsSubmitting] = React.useState(false)
+  const [email, setEmail] = useState('')
+  const [name, setName] = useState('')
+  const [password, setPassword] = useState('')
+  const [profilePicture, setProfilePicture] = useState(null)
+  const [adminInviteCode, setAdminInviteCode] = useState('')
+  const [error, setError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const navigate = useNavigate()
   const { setUser } = useUser()
 
@@ -74,8 +74,8 @@ const Signup = () => {
       } else {
         navigate('/user/dashboard')
       }
-    } catch (err) {
-      const message = err?.response?.data?.message || 'Signup failed. Please try again.'
+    } catch (error) {
+      const message = error?.response?.data?.message || 'Signup failed. Please try again.'
       setError(message)
     } finally {
       setIsSubmitting(false)
@@ -130,17 +130,17 @@ const Signup = () => {
                 />
 
                 {error && (
-                  <div className="bg-red-50 border border-red-200 rounded-xl px-2 py-1.5 flex items-start gap-2">
-                    <svg className="w-3.5 h-3.5 text-red-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <div className="bg-red-50 border border-red-200 rounded-xl px-3 py-2 flex items-start gap-2">
+                    <svg className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                     </svg>
-                    <p className="text-red-600 text-[10px]">{error}</p>
+                    <p className="text-red-600 text-sm">{error}</p>
                   </div>
                 )}
               </div>
 
               <div className="lg:col-span-1 flex flex-col items-center justify-start">
-                <ProfilePhotoSelecter image={profilePicture} setImage={setProfilePicture} size={80} />
+                <ProfilePhotoSelecter image={profilePicture} setImage={setProfilePicture} size={100} />
               </div>
             </div>
 
@@ -148,7 +148,7 @@ const Signup = () => {
               <button className="btn-primary w-full py-2" disabled={isSubmitting}>
                 {isSubmitting ? (
                   <span className="flex items-center justify-center gap-2">
-                    <svg className="animate-spin h-3.5 w-3.5" fill="none" viewBox="0 0 24 24">
+                    <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
@@ -157,9 +157,9 @@ const Signup = () => {
                 ) : 'Create Account'}
               </button>
 
-              <p className="text-center text-[10px] text-slate-600 mt-2">
+              <p className="text-center text-sm text-slate-600 mt-2">
                 Already have an account?{' '}
-                <button type="button" className="auth-link text-[10px]" onClick={() => navigate('/login')}>
+                <button type="button" className="auth-link text-sm" onClick={() => navigate('/login')}>
                   Login here
                 </button>
               </p>

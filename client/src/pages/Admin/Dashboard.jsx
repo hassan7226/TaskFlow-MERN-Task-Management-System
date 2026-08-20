@@ -133,6 +133,21 @@ const Dashboard = () => {
           )}
         </div>
 
+        {/* Professional Loading State */}
+        {loading && (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="flex items-center gap-2">
+                <div className="w-1 h-6 bg-gradient-to-b from-slate-300 to-slate-400 rounded-full animate-pulse"></div>
+                <div className="space-y-1">
+                  <div className="h-6 w-10 bg-slate-200 rounded animate-pulse"></div>
+                  <div className="h-3 w-20 bg-slate-200 rounded animate-pulse"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* Professional Error State */}
         {error && (
           <div className="bg-gradient-to-r from-red-50 to-orange-50 border border-red-200/60 rounded-xl p-4 shadow-sm">
@@ -159,12 +174,12 @@ const Dashboard = () => {
         {!loading && !error && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
             {/* Left: Task Distribution Chart */}
-            <div className="hover:shadow-lg transition-shadow duration-300">
+            <div className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
               <TaskDistributionChart data={formatTaskDistributionData(dashboardData)} />
             </div>
 
             {/* Right: Task Priority Levels Chart */}
-            <div className="hover:shadow-lg transition-shadow duration-300">
+            <div className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
               <TaskPriorityChart data={formatPriorityData(dashboardData)} />
             </div>
           </div>
@@ -172,7 +187,7 @@ const Dashboard = () => {
 
         {/* Recent Tasks Section */}
         {!loading && !error && (
-          <div className="hover:shadow-lg transition-shadow duration-300">
+          <div className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
             <RecentTasks tasks={dashboardData?.recentTasks || []} />
           </div>
         )}

@@ -1,4 +1,4 @@
-import {useContext,useEffect} from 'react'
+import { useContext, useEffect } from 'react'
 import { UserContext } from '../context/UserContext'
 import { useNavigate } from 'react-router-dom'
 
@@ -7,12 +7,11 @@ const useUserAuth = () => {
   const navigate = useNavigate()
 
   useEffect(() => {
-
-    if(loading) {
+    if (loading) {
       // Still loading, do nothing
       return
     }
-    if(user) {
+    if (user) {
       // User is logged in, do nothing
       return
     }
@@ -20,7 +19,7 @@ const useUserAuth = () => {
       clearUser() // Clear user state if not logged in
       navigate('/login') // Redirect to login page
     }
-}, [user, loading, navigate, clearUser])
+  }, [user, loading, navigate, clearUser])
 
   return { user, loading }
 }

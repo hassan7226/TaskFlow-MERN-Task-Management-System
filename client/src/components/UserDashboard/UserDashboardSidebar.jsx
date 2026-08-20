@@ -1,9 +1,9 @@
 import React from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { LuLayoutDashboard, LuListTodo, LuPlus, LuUsers, LuLogOut, LuX } from 'react-icons/lu'
+import { LuLayoutDashboard, LuListTodo, LuCalendar, LuLogOut, LuX } from 'react-icons/lu'
 import { useUser } from '../../context/UserContext'
 
-const DashboardSidebar = ({ isOpen, onClose, user }) => {
+const UserDashboardSidebar = ({ isOpen, onClose, user }) => {
   const navigate = useNavigate()
   const location = useLocation()
   const { clearUser } = useUser()
@@ -14,29 +14,17 @@ const DashboardSidebar = ({ isOpen, onClose, user }) => {
   }
 
   const navItems = [
-    { 
-      path: '/admin/dashboard', 
-      icon: LuLayoutDashboard, 
+    {
+      path: '/user/dashboard',
+      icon: LuLayoutDashboard,
       label: 'Dashboard',
-      description: 'Overview and stats'
+      description: 'My overview'
     },
-    { 
-      path: '/admin/manage-tasks', 
-      icon: LuListTodo, 
-      label: 'Tasks',
-      description: 'Manage all tasks'
-    },
-    { 
-      path: '/admin/create-task', 
-      icon: LuPlus, 
-      label: 'Create Task',
-      description: 'Add new task'
-    },
-    { 
-      path: '/admin/manage-user', 
-      icon: LuUsers, 
-      label: 'Team',
-      description: 'Team members'
+    {
+      path: '/user/my-tasks',
+      icon: LuListTodo,
+      label: 'My Tasks',
+      description: 'Assigned tasks'
     },
   ]
 
@@ -81,7 +69,7 @@ const DashboardSidebar = ({ isOpen, onClose, user }) => {
 
           <div className="p-6 border-b border-slate-200/60">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg">
                 {user?.profileImageUrl ? (
                   <img
                     src={user.profileImageUrl}
@@ -125,7 +113,7 @@ const DashboardSidebar = ({ isOpen, onClose, user }) => {
                           w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium
                           transition-all duration-200 group relative overflow-hidden
                           ${active
-                            ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/25'
+                            ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/25'
                             : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
                           }
                         `}
@@ -133,7 +121,7 @@ const DashboardSidebar = ({ isOpen, onClose, user }) => {
                         <Icon size={20} className={active ? 'text-white' : 'text-slate-500 group-hover:text-slate-700'} />
                         <div className="flex-1 text-left">
                           <span className="block">{item.label}</span>
-                          <span className={`text-xs ${active ? 'text-indigo-100' : 'text-slate-400'}`}>
+                          <span className={`text-xs ${active ? 'text-emerald-100' : 'text-slate-400'}`}>
                             {item.description}
                           </span>
                         </div>
@@ -163,4 +151,4 @@ const DashboardSidebar = ({ isOpen, onClose, user }) => {
   )
 }
 
-export default DashboardSidebar
+export default UserDashboardSidebar

@@ -1,7 +1,6 @@
-import React from 'react'
-import AuthLayout from '../../components/Layout/AuthLayout'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import AuthLayout from '../../components/Layout/AuthLayout'
 import Input from '../../components/input/input'
 import { validateEmail } from '../../utils/helper'
 import API from '../../utils/axios'
@@ -17,23 +16,24 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
+
     if (!email) {
       setError('Email is required')
       return
-    } 
+    }
 
     if (!validateEmail(email)) {
       setError('Please enter a valid email address')
       return
     }
-   
+
     if (!password) {
       setError('Password is required')
       return
     }
 
     try {
-    const response = await API.post('/auth/login', { email, password })
+      const response = await API.post('/auth/login', { email, password })
       const { role, id, name, email: userEmail, profileImageUrl } = response.data
 
       // Set user data in context
@@ -45,24 +45,20 @@ const Login = () => {
         role
       })
 
-     // Redirect to the appropriate dashboard based on the role
-     if (role === 'admin') {
-       navigate('/admin/dashboard')
-     }
-     else {
-       navigate('/user/dashboard')
-     }
+      // Redirect to the appropriate dashboard based on the role
+      if (role === 'admin') {
+        navigate('/admin/dashboard')
+      } else {
+        navigate('/user/dashboard')
+      }
+    } catch (error) {
+      // Handle login error
+      if (error.response && error.response.data && error.response.data.message) {
+        setError(error.response.data.message)
+      } else {
+        setError('An error occurred during login. Please try again.')
+      }
     }
-
-    catch(error) {
-        // Handle login error
-        if (error.response && error.response.data && error.response.data.message) {
-          setError(error.response.data.message)
-        }
-        else {
-          setError('An error occurred during login. Please try again.')
-        }
-      };
   }
    
   
@@ -100,15 +96,15 @@ const Login = () => {
                 <svg className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                 </svg>
-                <p className="text-red-600 text-xs">{error}</p>
+                <p className="text-red-600 text-sm">{error}</p>
               </div>
             )}
 
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-              <button type="button" className="text-xs auth-link text-left" onClick={() => navigate('/reset-password')}>
+              <button type="button" className="text-sm auth-link text-left" onClick={() => navigate('/reset-password')}>
                 Forgot Password?
               </button>
-              <button type="button" className="text-xs auth-link text-left sm:text-right" onClick={() => navigate('/verify-email')}>
+              <button type="button" className="text-sm auth-link text-left sm:text-right" onClick={() => navigate('/verify-email')}>
                 Verify Email
               </button>
             </div>
@@ -118,9 +114,9 @@ const Login = () => {
             </button>
 
             <div className="pt-3 border-t border-slate-200">
-              <p className="text-center text-xs text-slate-600">
+              <p className="text-center text-sm text-slate-600">
                 Don't have an account?{' '}
-                <button type="button" className="auth-link text-xs" onClick={() => navigate('/signup')}>
+                <button type="button" className="auth-link text-sm" onClick={() => navigate('/signup')}>
                   Sign up
                 </button>
               </p>

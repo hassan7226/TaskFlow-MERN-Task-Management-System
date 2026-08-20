@@ -52,6 +52,7 @@ export const userReport = async (req, res) => {
          const userTaskMap = {};
          users.forEach((user) => {
             userTaskMap[(user._id)] = {
+                id: user._id.toString(),
                 name: user.name,
                 email: user.email,
                 tasksCount: 0,

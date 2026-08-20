@@ -1,16 +1,16 @@
-import React from 'react'
+import React, { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import AuthLayout from '../../components/Layout/AuthLayout'
 import API from '../../utils/axios'
 
 const EmailVerify = () => {
-  const [otpDigits, setOtpDigits] = React.useState(['', '', '', '', '', ''])
-  const [statusMessage, setStatusMessage] = React.useState('')
-  const [error, setError] = React.useState('')
-  const [sendingOtp, setSendingOtp] = React.useState(false)
-  const [verifyingOtp, setVerifyingOtp] = React.useState(false)
-  const [checkingStatus, setCheckingStatus] = React.useState(false)
-  const otpRefs = React.useRef([])
+  const [otpDigits, setOtpDigits] = useState(['', '', '', '', '', ''])
+  const [statusMessage, setStatusMessage] = useState('')
+  const [error, setError] = useState('')
+  const [sendingOtp, setSendingOtp] = useState(false)
+  const [verifyingOtp, setVerifyingOtp] = useState(false)
+  const [checkingStatus, setCheckingStatus] = useState(false)
+  const otpRefs = useRef([])
   const navigate = useNavigate()
 
   const handleOtpChange = (index, value) => {
@@ -57,8 +57,8 @@ const EmailVerify = () => {
       } else {
         setStatusMessage('Your account is not verified yet.')
       }
-    } catch (err) {
-      const message = err?.response?.data?.message || 'Could not check verification status.'
+    } catch (error) {
+      const message = error?.response?.data?.message || 'Could not check verification status.'
       setError(message)
     } finally {
       setCheckingStatus(false)
@@ -73,8 +73,8 @@ const EmailVerify = () => {
       const response = await API.post('/auth/send-verify-otp')
       setStatusMessage(response?.data?.message || 'OTP sent to your email.')
       otpRefs.current[0]?.focus()
-    } catch (err) {
-      const message = err?.response?.data?.message || 'Failed to send OTP.'
+    } catch (error) {
+      const message = error?.response?.data?.message || 'Failed to send OTP.'
       setError(message)
     } finally {
       setSendingOtp(false)
@@ -97,8 +97,8 @@ const EmailVerify = () => {
       const response = await API.post('/auth/verify-account', { otp })
       setStatusMessage(response?.data?.message || 'Email verified successfully.')
       setOtpDigits(['', '', '', '', '', ''])
-    } catch (err) {
-      const message = err?.response?.data?.message || 'Failed to verify OTP.'
+    } catch (error) {
+      const message = error?.response?.data?.message || 'Failed to verify OTP.'
       setError(message)
     } finally {
       setVerifyingOtp(false)
@@ -155,7 +155,7 @@ const EmailVerify = () => {
                     />
                   ))}
                 </div>
-                <p className="text-[10px] text-slate-500">Tip: you can paste the full OTP code directly.</p>
+                <p className="text-xs text-slate-500">Tip: you can paste the full OTP code directly.</p>
               </div>
 
               <button type="submit" className="btn-primary py-2" disabled={verifyingOtp}>
@@ -168,7 +168,7 @@ const EmailVerify = () => {
                 <svg className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
-                <p className="text-green-600 text-xs">{statusMessage}</p>
+                <p className="text-green-600 text-sm">{statusMessage}</p>
               </div>
             )}
 
@@ -177,14 +177,14 @@ const EmailVerify = () => {
                 <svg className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                 </svg>
-                <p className="text-red-600 text-xs">{error}</p>
+                <p className="text-red-600 text-sm">{error}</p>
               </div>
             )}
 
             <div className="pt-2 border-t border-slate-200">
-              <p className="text-center text-xs text-slate-600">
+              <p className="text-center text-sm text-slate-600">
                 Back to{' '}
-                <button type="button" className="auth-link text-xs" onClick={() => navigate('/login')}>
+                <button type="button" className="auth-link text-sm" onClick={() => navigate('/login')}>
                   Login
                 </button>
               </p>

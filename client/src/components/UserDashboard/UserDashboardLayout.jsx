@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import { useUser } from '../../context/UserContext'
-import DashboardNavbar from './DashboardNavbar'
-import DashboardSidebar from './DashboardSidebar'
+import UserDashboardNavbar from './UserDashboardNavbar'
+import UserDashboardSidebar from './UserDashboardSidebar'
 
-const DashboardLayout = ({ children }) => {
+const UserDashboardLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const { user } = useUser()
 
@@ -17,10 +17,10 @@ const DashboardLayout = ({ children }) => {
 
   return (
     <div className="min-h-screen bg-slate-50 w-full overflow-x-hidden flex flex-col">
-      <DashboardNavbar onMenuClick={toggleSidebar} />
+      <UserDashboardNavbar onMenuClick={toggleSidebar} />
 
       <div className="flex w-full flex-1 pt-16">
-        <DashboardSidebar
+        <UserDashboardSidebar
           isOpen={sidebarOpen}
           onClose={closeSidebar}
           user={user}
@@ -36,4 +36,4 @@ const DashboardLayout = ({ children }) => {
   )
 }
 
-export default DashboardLayout
+export default UserDashboardLayout

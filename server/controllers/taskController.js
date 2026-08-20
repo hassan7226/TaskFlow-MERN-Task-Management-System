@@ -84,10 +84,10 @@ export const getTaskById = async (req, res) => {
 };
 
 export const createTask = async (req, res) => {
-    
+
     try {
         const {
-            title,description,priority,status,dueDate,assignedTo,attachments,todoChecklist
+            title,description,priority,dueDate,assignedTo,attachments,todoChecklist
         } = req.body;
         if(!Array.isArray(assignedTo)){
             return res.status(400).json({ message: "assignedTo must be an array of user IDs" });
@@ -97,7 +97,7 @@ export const createTask = async (req, res) => {
             title,
             description,
             priority,
-            status,
+            status: 'pending', // Set default status to pending
             dueDate,
             assignedTo,
             attachments,

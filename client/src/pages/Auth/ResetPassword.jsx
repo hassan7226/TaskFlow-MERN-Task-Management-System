@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import AuthLayout from '../../components/Layout/AuthLayout'
 import Input from '../../components/input/input'
@@ -6,24 +6,23 @@ import API from '../../utils/axios'
 import { validateEmail } from '../../utils/helper'
 
 const ResetPassword = () => {
-  const [step, setStep] = React.useState(1)
-  const [email, setEmail] = React.useState('')
-  const [newPassword, setNewPassword] = React.useState('')
-  const [otpDigits, setOtpDigits] = React.useState(['', '', '', '', '', ''])
-  const [statusMessage, setStatusMessage] = React.useState('')
-  const [error, setError] = React.useState('')
-  const [sendingOtp, setSendingOtp] = React.useState(false)
-  const [resettingPassword, setResettingPassword] = React.useState(false)
-  const otpRefs = React.useRef([])
+  const [step, setStep] = useState(1)
+  const [email, setEmail] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [otpDigits, setOtpDigits] = useState(['', '', '', '', '', ''])
+  const [statusMessage, setStatusMessage] = useState('')
+  const [error, setError] = useState('')
+  const [sendingOtp, setSendingOtp] = useState(false)
+  const [resettingPassword, setResettingPassword] = useState(false)
+  const otpRefs = useRef([])
   const navigate = useNavigate()
 
   const stepTitle = step === 1 ? 'Reset Password' : step === 2 ? 'Verify OTP' : 'Set New Password'
-  const stepDescription =
-    step === 1
-      ? 'Enter your email to receive a reset code.'
-      : step === 2
-        ? 'Enter the 6-digit OTP sent to your email.'
-        : 'Create your new password to finish recovery.'
+  const stepDescription = step === 1
+    ? 'Enter your email to receive a reset code.'
+    : step === 2
+      ? 'Enter the 6-digit OTP sent to your email.'
+      : 'Create your new password to finish recovery.'
 
   const handleOtpChange = (index, value) => {
     const digit = value.replace(/\D/g, '').slice(-1)
@@ -71,8 +70,8 @@ const ResetPassword = () => {
       setStatusMessage(response?.data?.message || 'OTP sent successfully.')
       setStep(2)
       otpRefs.current[0]?.focus()
-    } catch (err) {
-      const message = err?.response?.data?.message || 'Failed to send OTP.'
+    } catch (error) {
+      const message = error?.response?.data?.message || 'Failed to send OTP.'
       setError(message)
     } finally {
       setSendingOtp(false)
@@ -128,8 +127,8 @@ const ResetPassword = () => {
       setOtpDigits(['', '', '', '', '', ''])
       setNewPassword('')
       setTimeout(() => navigate('/login'), 1200)
-    } catch (err) {
-      const message = err?.response?.data?.message || 'Failed to reset password.'
+    } catch (error) {
+      const message = error?.response?.data?.message || 'Failed to reset password.'
       setError(message)
     } finally {
       setResettingPassword(false)
@@ -142,6 +141,7 @@ const ResetPassword = () => {
         <div className="auth-card">
           <div className="text-center mb-3 sm:mb-4">
             <h2 className="text-lg sm:text-xl font-bold text-slate-900">{stepTitle}</h2>
+            <p className="text-sm text-slate-600 mt-1">{stepDescription}</p>
           </div>
 
           <div className="space-y-3 sm:space-y-3.5">
@@ -214,7 +214,7 @@ const ResetPassword = () => {
                 <svg className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
-                <p className="text-green-600 text-xs">{statusMessage}</p>
+                <p className="text-green-600 text-sm">{statusMessage}</p>
               </div>
             )}
 
@@ -223,14 +223,14 @@ const ResetPassword = () => {
                 <svg className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                 </svg>
-                <p className="text-red-600 text-xs">{error}</p>
+                <p className="text-red-600 text-sm">{error}</p>
               </div>
             )}
 
             <div className="pt-2 border-t border-slate-200">
-              <p className="text-center text-xs text-slate-600">
+              <p className="text-center text-sm text-slate-600">
                 Back to{' '}
-                <button type="button" className="auth-link text-xs" onClick={() => navigate('/login')}>
+                <button type="button" className="auth-link text-sm" onClick={() => navigate('/login')}>
                   Login
                 </button>
               </p>
