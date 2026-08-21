@@ -17,7 +17,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 dotenv.config();
-const port = process.env.PORT || 5000;
+
 const app = express();
 
 
@@ -48,6 +48,4 @@ app.get("/", (req, res) => {
   res.send("API is running...");
 });
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-})
+export default app; 
