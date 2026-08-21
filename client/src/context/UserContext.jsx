@@ -17,6 +17,14 @@ export const UserProvider = ({ children }) => {
 
 
   const fetchUser = async () => {
+    // Don't fetch if on public routes
+    const publicRoutes = ['/login', '/signup', '/reset-password']
+    const isPublicRoute = publicRoutes.some(route => window.location.pathname.startsWith(route))
+
+    if (isPublicRoute) {
+      setLoading(false)
+      return
+    }
 
     try {
 

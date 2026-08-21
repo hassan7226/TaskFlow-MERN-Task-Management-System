@@ -154,8 +154,8 @@ export const loginUser = async (req,res) => {
 
        res.cookie("token", token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+            secure: true,
+            sameSite: "none",
             maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
         });
 
@@ -181,6 +181,16 @@ export const getUserProfile = async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
+
+        // Convert localhost URLs to production URLs for profile images
+        const baseUrl = process.env.BACKEND_URL;
+        if (user.profileImageUrl && baseUrl) {
+            user.profileImageUrl = user.profileImageUrl.replace(
+                /http:\/\/localhost:\d+/,
+                baseUrl
+            );
+        }
+
         res.status(200).json({ user });
     } catch (error) {
         res.status(500).json({ message: "Server error", error: error.message });
@@ -228,8 +238,8 @@ export const logoutUser = (req, res) => {
     try {
         res.clearCookie("token", {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: process.env.NODE_ENV === "production" ? "none" : "strict"
+            secure: true,
+            sameSite: "none"
         });
         res.status(200).json({ message: "User logged out successfully" });
     } catch (error) {
@@ -302,10 +312,11 @@ export const uploadProfilePicture = async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ message: "No file uploaded" });
   }
-  const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+  const baseUrl = process.env.BACKEND_URL || `${req.protocol}://${req.get("host")}`;
+  const imageUrl = `${baseUrl}/uploads/${req.file.filename}`;
   res.status(200).json({ message: "Profile picture uploaded successfully", imageUrl });
 }
 catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
-}   
+}
 };

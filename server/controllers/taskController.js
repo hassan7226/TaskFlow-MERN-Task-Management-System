@@ -21,8 +21,26 @@ export const getTasks = async (req, res) => {
             "assignedTo",
              "name email  profileImageUrl").populate("createdBy", "name email profileImageUrl");
 
+        // Convert localhost URLs to production URLs for profile images
+        const baseUrl = process.env.BACKEND_URL;
+        tasks = tasks.map(task => {
+            if (task.assignedTo?.profileImageUrl && baseUrl) {
+                task.assignedTo.profileImageUrl = task.assignedTo.profileImageUrl.replace(
+                    /http:\/\/localhost:\d+/,
+                    baseUrl
+                );
+            }
+            if (task.createdBy?.profileImageUrl && baseUrl) {
+                task.createdBy.profileImageUrl = task.createdBy.profileImageUrl.replace(
+                    /http:\/\/localhost:\d+/,
+                    baseUrl
+                );
+            }
+            return task;
+        });
+
 //add todoChecklist count to each task
-   
+
      const task = await Promise.all(tasks.map(async (task) => {
         const completedTodoCount = task.todoChecklist.filter(
         (item) => item.completed).length;
