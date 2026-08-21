@@ -15,8 +15,8 @@ const ManageUsers = () => {
       
       // Fetch users and tasks in parallel
       const [usersResponse, tasksResponse] = await Promise.all([
-        API.get('/users'),
-        API.get('/tasks')
+        API.get('/api/users'),
+        API.get('/api/tasks')
       ])
       
       const usersData = usersResponse.data || []
@@ -56,7 +56,7 @@ const ManageUsers = () => {
 
   const handleDownloadReport = async () => {
     try {
-      const response = await API.get('/reports/user-report', { responseType: 'blob' })
+      const response = await API.get('/api/reports/user-report', { responseType: 'blob' })
       const url = window.URL.createObjectURL(new Blob([response.data]))
       const link = document.createElement('a')
       link.href = url
@@ -76,7 +76,7 @@ const ManageUsers = () => {
     }
 
     try {
-      await API.delete(`/users/${userId}`)
+      await API.delete(`/api/users/${userId}`)
       // Refresh the users list after deletion
       fetchUsers()
     } catch (error) {

@@ -66,7 +66,7 @@ const ResetPassword = () => {
       setSendingOtp(true)
       setError('')
       setStatusMessage('')
-      const response = await API.post('/auth/reset-password-otp', { email: email.trim() })
+      const response = await API.post('/api/auth/reset-password-otp', { email: email.trim() })
       setStatusMessage(response?.data?.message || 'OTP sent successfully.')
       setStep(2)
       otpRefs.current[0]?.focus()
@@ -122,7 +122,7 @@ const ResetPassword = () => {
         newPassword,
       }
 
-      const response = await API.post('/auth/reset-password', payload)
+      const response = await API.post('/api/auth/reset-password', payload)
       setStatusMessage(response?.data?.message || 'Password reset successfully.')
       setOtpDigits(['', '', '', '', '', ''])
       setNewPassword('')
@@ -137,8 +137,8 @@ const ResetPassword = () => {
 
   return (
     <AuthLayout>
-      <div className="w-full max-w-md mx-auto px-4 sm:px-0">
-        <div className="auth-card">
+      <div className="w-full max-w-md mx-auto px-2">
+        <div className="auth-card p-4 sm:p-4">
           <div className="text-center mb-3 sm:mb-4">
             <h2 className="text-lg sm:text-xl font-bold text-slate-900">{stepTitle}</h2>
             <p className="text-sm text-slate-600 mt-1">{stepDescription}</p>

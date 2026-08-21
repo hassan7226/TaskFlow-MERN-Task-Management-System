@@ -29,14 +29,14 @@ const CreateTask = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await API.get('/users')
+        const response = await API.get('/api/users')
         console.log('Users response:', response.data)
         setUsers(response.data || [])
       } catch (error) {
         console.error('Failed to fetch users:', error)
         // Try to get all users including admins if member-only fails
         try {
-          const authResponse = await API.get('/auth/profile')
+          const authResponse = await API.get('/api/auth/profile')
           console.log('Auth profile:', authResponse.data)
           // For now, just use the current user as fallback
           if (authResponse.data?.user) {
@@ -106,7 +106,7 @@ const CreateTask = () => {
       const uploadPromises = files.map(async (file) => {
         const formData = new FormData()
         formData.append('image', file)
-        const response = await API.post('/auth/upload-image', formData, {
+        const response = await API.post('/api/auth/upload-image', formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         })
         console.log('Upload response:', response.data)
@@ -153,7 +153,7 @@ const CreateTask = () => {
 
     try {
       setLoading(true)
-      const response = await API.post('/tasks', formData)
+      const response = await API.post('/api/tasks', formData)
       navigate('/admin/manage-tasks')
     } catch (error) {
       console.error('Failed to create task:', error)

@@ -11,7 +11,7 @@ const Input = ({type, placeholder, value, label, onChange, id}) => {
     <div className='flex flex-col gap-2'>
       <label htmlFor={id || label} className='auth-input-label'>{label}</label>
 
-      <div className="input-box">
+      <div className="input-box relative">
         <input
           id={id || label}
           type={type === 'password' ? (showPassword ? 'text' : 'password') : type}
@@ -21,13 +21,13 @@ const Input = ({type, placeholder, value, label, onChange, id}) => {
           onChange={(e) => onChange(e)}
         />
         {type === 'password' && (
-         <>
-          {showPassword ? (
-            <FaRegEyeSlash size={20} className='text-slate-400 hover:text-primary cursor-pointer transition-colors' onClick={() => toggleShowPassword()} /> )
-
-                : (<FaRegEye size={20} className='text-slate-400 hover:text-primary cursor-pointer transition-colors' onClick={() => toggleShowPassword()} />)
-            }
-        </>
+          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+            {showPassword ? (
+              <FaRegEyeSlash size={18} className='text-slate-400 hover:text-primary cursor-pointer transition-colors' onClick={() => toggleShowPassword()} />
+            ) : (
+              <FaRegEye size={18} className='text-slate-400 hover:text-primary cursor-pointer transition-colors' onClick={() => toggleShowPassword()} />
+            )}
+          </div>
         )}
 
       </div>

@@ -1,14 +1,15 @@
 import multer from "multer";
 import path from "path";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+import cloudinary from "../config/cloudinary.js";
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/");
-  },
-
-  filename: (req, file, cb) => {
-    const uniqueName = `${Date.now()}-${file.originalname}`;
-    cb(null, uniqueName);
+// Cloudinary storage configuration
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: "taskflow-uploads",
+    allowed_formats: ["jpg", "jpeg", "png", "gif", "webp", "avif", "pdf", "doc", "docx", "xls", "xlsx"],
+    public_id: (req, file) => `${Date.now()}-${file.originalname.split('.')[0]}`,
   },
 });
 
@@ -20,6 +21,11 @@ const fileFilter = (req, file, cb) => {
     "image/gif",
     "image/webp",
     "image/avif",
+    "application/pdf",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.ms-excel",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   ];
 
   const allowedExtensions = [
@@ -29,6 +35,11 @@ const fileFilter = (req, file, cb) => {
     ".gif",
     ".webp",
     ".avif",
+    ".pdf",
+    ".doc",
+    ".docx",
+    ".xls",
+    ".xlsx",
   ];
 
   const extension = path.extname(file.originalname).toLowerCase();
@@ -41,7 +52,7 @@ const fileFilter = (req, file, cb) => {
   } else {
     cb(
       new Error(
-        "Invalid file type. Only JPG, JPEG, PNG, GIF, WEBP and AVIF images are allowed."
+        "Invalid file type. Only images (JPG, JPEG, PNG, GIF, WEBP, AVIF) and documents (PDF, DOC, DOCX, XLS, XLSX) are allowed."
       ),
       false
     );
@@ -52,7 +63,7 @@ const upload = multer({
   storage,
   fileFilter,
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5 MB
+    fileSize: 10 * 1024 * 1024, // 10 MB
   },
 });
 

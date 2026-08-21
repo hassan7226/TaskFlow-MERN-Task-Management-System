@@ -43,24 +43,30 @@ export const sendInvitation = async (req, res) => {
     });
 
     // Send email with invitation link
-    const invitationLink = `${process.env.CLIENT_URL || 'http://localhost:5173'}/signup?token=${token}`;
+    const clientUrl = process.env.CLIENT_URL || 
+      (req.headers.host?.includes('vercel.app') ? 'https://taskflow-iota-liart.vercel.app' : 'http://localhost:5173');
+    const invitationLink = `${clientUrl}/signup?token=${token}`;
 
     const mailOptions = {
       from: process.env.SENDER_EMAIL,
       to: email,
-      subject: 'Invitation to Join Task Manager App',
+      subject: 'Invitation to Join TaskFlow',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <h2 style="color: #4F46E5;">You're Invited to Join Task Manager App!</h2>
-          <p>Hello,</p>
-          <p>You have been invited to join the Task Manager App team. Click the button below to create your account and get started.</p>
+          <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #4F46E5; margin: 0;">You're Invited to Join TaskFlow!</h1>
+          </div>
+          <p style="font-size: 16px; line-height: 1.6;">Hello,</p>
+          <p style="font-size: 16px; line-height: 1.6;">You have been invited to join the TaskFlow team. Click the button below to create your account and get started.</p>
           <div style="text-align: center; margin: 30px 0;">
             <a href="${invitationLink}" style="background: linear-gradient(to right, #4F46E5, #7C3AED); color: white; padding: 12px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Create Your Account</a>
           </div>
-          <p>Or copy and paste this link into your browser:</p>
-          <p style="background: #F3F4F6; padding: 10px; border-radius: 4px; word-break: break-all;">${invitationLink}</p>
+          <p style="font-size: 16px; line-height: 1.6;">Or copy and paste this link into your browser:</p>
+          <p style="background: #F3F4F6; padding: 10px; border-radius: 4px; word-break: break-all; font-size: 14px;">${invitationLink}</p>
           <p style="color: #6B7280; font-size: 14px; margin-top: 20px;">This invitation will expire in 7 days.</p>
-          <p style="color: #6B7280; font-size: 14px;">If you didn't expect this invitation, you can safely ignore this email.</p>
+          <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #E5E7EB;">
+            <p style="color: #6B7280; font-size: 12px; margin: 0;">If you didn't expect this invitation, you can safely ignore this email.</p>
+          </div>
         </div>
       `
     };

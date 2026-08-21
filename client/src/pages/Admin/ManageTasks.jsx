@@ -15,7 +15,7 @@ const ManageTasks = () => {
     try {
       setLoading(true)
       setError(null)
-      const response = await API.get('/tasks')
+      const response = await API.get('/api/tasks')
       setTasks(response.data.tasks || [])
     } catch (error) {
       console.error('Failed to fetch tasks:', error)
@@ -49,7 +49,7 @@ const ManageTasks = () => {
 
   const handleDownloadReport = async () => {
     try {
-      const response = await API.get('/reports/task-report', { responseType: 'blob' })
+      const response = await API.get('/api/reports/task-report', { responseType: 'blob' })
       const url = window.URL.createObjectURL(new Blob([response.data]))
       const link = document.createElement('a')
       link.href = url

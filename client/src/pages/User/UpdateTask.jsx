@@ -34,7 +34,7 @@ const UpdateTask = () => {
         setFetchLoading(true)
         
         // Fetch task data
-        const taskResponse = await API.get(`/tasks/${taskId}`)
+        const taskResponse = await API.get(`/api/tasks/${taskId}`)
         const task = taskResponse.data.task
         
         // Set editable form data
@@ -85,9 +85,9 @@ const UpdateTask = () => {
     try {
       setLoading(true)
       // Update status
-      await API.put(`/tasks/${taskId}/status`, { status: formData.status })
+      await API.put(`/api/tasks/${taskId}/status`, { status: formData.status })
       // Update todo checklist
-      await API.put(`/tasks/${taskId}/todo`, { todoChecklist: formData.todoChecklist })
+      await API.put(`/api/tasks/${taskId}/todo`, { todoChecklist: formData.todoChecklist })
       navigate('/user/my-tasks')
     } catch (error) {
       console.error('Failed to update task:', error)

@@ -15,7 +15,7 @@ const InviteUser = () => {
   const fetchInvitations = async () => {
     try {
       setFetchLoading(true)
-      const response = await API.get('/invitations')
+      const response = await API.get('/api/invitations')
       setInvitations(response.data.invitations)
     } catch (error) {
       console.error('Failed to fetch invitations:', error)
@@ -41,7 +41,7 @@ const InviteUser = () => {
 
     try {
       setLoading(true)
-      const response = await API.post('/invitations/send', { email })
+      const response = await API.post('/api/invitations/send', { email })
       setSuccess(`Invitation sent to ${email}`)
       setInvitationLink(response.data.invitation.invitationLink)
       setEmail('')
@@ -62,7 +62,7 @@ const InviteUser = () => {
 
   const handleDeleteInvitation = async (id) => {
     try {
-      await API.delete(`/invitations/${id}`)
+      await API.delete(`/api/invitations/${id}`)
       setSuccess('Invitation deleted successfully')
       fetchInvitations()
     } catch (error) {
@@ -104,20 +104,20 @@ const InviteUser = () => {
     <DashboardLayout>
       <div className="space-y-6 w-full">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Invite Users</h1>
-            <p className="text-slate-600 mt-1">Send invitations to new team members</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Invite Users</h1>
+            <p className="text-slate-600 mt-1 text-sm sm:text-base">Send invitations to new team members</p>
           </div>
         </div>
 
         {/* Send Invitation Form */}
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200/60 p-6">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200/60 p-4 sm:p-6">
           <h2 className="text-lg font-semibold text-slate-900 mb-4">Send New Invitation</h2>
           <form onSubmit={handleSendInvitation} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">Email Address</label>
-              <div className="flex gap-3">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <div className="flex-1 relative">
                   <LuMail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
                   <input
@@ -131,7 +131,7 @@ const InviteUser = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {loading ? (
                     <>
@@ -162,12 +162,12 @@ const InviteUser = () => {
 
             {invitationLink && (
               <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
                   <span className="text-sm font-medium text-indigo-900">Invitation Link</span>
                   <button
                     type="button"
                     onClick={handleCopyLink}
-                    className="text-indigo-600 hover:text-indigo-800 transition-colors flex items-center gap-1 text-sm font-medium"
+                    className="text-indigo-600 hover:text-indigo-800 transition-colors flex items-center gap-1 text-sm font-medium self-start sm:self-auto"
                   >
                     <LuCopy size={16} />
                     Copy Link
@@ -185,7 +185,7 @@ const InviteUser = () => {
         </div>
 
         {/* Invitations List */}
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200/60 p-6">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200/60 p-4 sm:p-6">
           <h2 className="text-lg font-semibold text-slate-900 mb-4">Sent Invitations</h2>
           
           {fetchLoading ? (
@@ -203,18 +203,18 @@ const InviteUser = () => {
               {invitations.map((invitation) => (
                 <div
                   key={invitation._id}
-                  className="flex items-center justify-between p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors gap-3"
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                      <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
                         <LuMail className="text-indigo-600" size={20} />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold text-slate-900 truncate">
                           {invitation.email}
                         </p>
-                        <div className="flex items-center gap-2 mt-1">
+                        <div className="flex flex-wrap items-center gap-2 mt-1">
                           <span className={`text-xs px-2 py-1 rounded-full font-medium border ${getStatusBadge(invitation.status)}`}>
                             {invitation.status.charAt(0).toUpperCase() + invitation.status.slice(1)}
                           </span>
@@ -226,7 +226,7 @@ const InviteUser = () => {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 ml-4">
+                  <div className="flex items-center gap-2 sm:ml-4 justify-end">
                     {invitation.status === 'pending' && !isExpired(invitation.expiresAt) && (
                       <button
                         onClick={() => {

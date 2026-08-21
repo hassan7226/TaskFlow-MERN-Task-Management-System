@@ -55,11 +55,11 @@
 }
 
 .input-box {
-  @apply w-full flex items-center justify-between gap-3 text-sm border border-gray-200 rounded-xl px-3 py-2 bg-white/80 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200 shadow-sm;
+  @apply w-full text-sm border border-gray-200 rounded-xl px-3 py-2 bg-white/80 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200 shadow-sm min-w-0;
 }
 
 .btn-primary {
-  @apply w-full bg-gradient-to-r from-primary to-secondary text-white text-sm font-semibold rounded-xl px-4 py-3 shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 hover:from-primary-dark hover:to-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0;
+  @apply w-full bg-gradient-to-r from-primary to-secondary text-white text-sm font-semibold rounded-xl px-4 py-3 shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 hover:from-primary-dark hover:to-primary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0 min-w-0;
 }
 
 .btn-secondary {
@@ -67,7 +67,7 @@
 }
 
 .auth-card {
-  @apply bg-white/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 p-4 sm:p-5 lg:p-6;
+  @apply bg-white/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 w-full;
 }
 
 .auth-input-label {

@@ -64,23 +64,23 @@ const ProfilePhotoSelecter = ({ image, setImage, size = 96, className = '' }) =>
         <div className={`flex flex-col items-center gap-2 ${className}`}>
             <div
                 style={{ width: size, height: size }}
-                className="rounded-full overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200 border-2 border-slate-300 flex items-center justify-center shadow-md hover:shadow-xl hover:border-primary/50 transition-all duration-300 group"
+                className="rounded-full overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200 border-2 border-slate-300 flex items-center justify-center shadow-md hover:shadow-xl hover:border-primary/50 transition-all duration-300 group flex-shrink-0"
             >
                 {previewUrl ? (
                     <img src={previewUrl} alt="Profile preview" className="object-cover w-full h-full" />
                 ) : (
-                    <LuUser size={Math.round(size * 0.5)} className="text-slate-400 group-hover:text-primary/70 transition-colors" />
+                    <LuUser size={Math.round(size * 0.5)} className="text-slate-400 group-hover:text-primary/70 transition-colors flex-shrink-0" />
                 )}
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap justify-center">
                 <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
-                <button type="button" className="text-xs font-medium text-primary hover:text-primary-dark flex items-center gap-1 px-2 py-1.5 rounded-lg hover:bg-primary/10 transition-all duration-200" onClick={onChoose}>
+                <button type="button" className="text-xs font-medium text-primary hover:text-primary-dark flex items-center gap-1 px-2 py-1.5 rounded-lg hover:bg-primary/10 transition-all duration-200 flex-shrink-0" onClick={onChoose}>
                     <LuUpload size={14} />
                     <span>Choose</span>
                 </button>
                 {previewUrl && (
-                    <button type="button" className="text-xs font-medium text-red-500 hover:text-red-600 flex items-center gap-1 px-2 py-1.5 rounded-lg hover:bg-red-50 transition-all duration-200" onClick={handleRemove}>
+                    <button type="button" className="text-xs font-medium text-red-500 hover:text-red-600 flex items-center gap-1 px-2 py-1.5 rounded-lg hover:bg-red-50 transition-all duration-200 flex-shrink-0" onClick={handleRemove}>
                         <LuTrash size={14} />
                         <span>Remove</span>
                     </button>

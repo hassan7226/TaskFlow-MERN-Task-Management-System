@@ -100,11 +100,14 @@ export const registerUser = async (req, res) => {
 
         //send email (optional - if email fails, still complete signup)
         try {
+            const clientUrl = process.env.CLIENT_URL || 
+              (req.headers.host?.includes('vercel.app') ? 'https://taskflow-iota-liart.vercel.app' : 'http://localhost:5173');
+            
             const mailOptions = {
                 from: process.env.SENDER_EMAIL,
                 to: user.email,
-                subject: "Welcome to Task Manager App",
-                text: `Hello ${user.name},\n\nWelcome to Task Manager App! Your account has been successfully created.\n\nBest regards,\nTask Manager App Team`
+                subject: "Welcome to TaskFlow",
+                text: `Hello ${user.name},\n\nWelcome to TaskFlow! Your account has been successfully created.\n\nBest regards,\nTaskFlow Team`
             };
             await transporter.sendMail(mailOptions);
         } catch (emailError) {
@@ -182,15 +185,6 @@ export const getUserProfile = async (req, res) => {
             return res.status(404).json({ message: "User not found" });
         }
 
-        // Convert localhost URLs to production URLs for profile images
-        const baseUrl = process.env.BACKEND_URL;
-        if (user.profileImageUrl && baseUrl) {
-            user.profileImageUrl = user.profileImageUrl.replace(
-                /http:\/\/localhost:\d+/,
-                baseUrl
-            );
-        }
-
         res.status(200).json({ user });
     } catch (error) {
         res.status(500).json({ message: "Server error", error: error.message });
@@ -264,11 +258,15 @@ export const resetPasswordOtp = async (req,res) => {
         user.resetOtp = otp;
         user.resetOtpExpiry = Date.now() + 10 * 60 * 1000; // 10 minutes
         await user.save();
+        
+        const clientUrl = process.env.CLIENT_URL || 
+          (req.headers.host?.includes('vercel.app') ? 'https://taskflow-iota-liart.vercel.app' : 'http://localhost:5173');
+        
         await transporter.sendMail({
             from: process.env.SENDER_EMAIL,
             to: user.email,
-            subject: "Reset Password OTP",
-            text: `Your OTP for resetting password is: ${otp}`
+            subject: "TaskFlow Password Reset OTP",
+            text: `Your OTP for resetting your TaskFlow password is: ${otp}`
         });
 
         res.status(200).json({ message: `OTP sent successfully to ${user.email}` });
@@ -307,16 +305,20 @@ export const resetPassword = async (req,res) => {
 };
 
 export const uploadProfilePicture = async (req, res) => {
-
     try {
-  if (!req.file) {
-    return res.status(400).json({ message: "No file uploaded" });
-  }
-  const baseUrl = process.env.BACKEND_URL || `${req.protocol}://${req.get("host")}`;
-  const imageUrl = `${baseUrl}/uploads/${req.file.filename}`;
-  res.status(200).json({ message: "Profile picture uploaded successfully", imageUrl });
-}
-catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
-}
+        if (!req.file) {
+            return res.status(400).json({ message: "No file uploaded" });
+        }
+        
+        // Cloudinary stores the file and returns the URL in req.file.path
+        const imageUrl = req.file.path;
+        
+        res.status(200).json({ 
+            message: "Profile picture uploaded successfully", 
+            imageUrl 
+        });
+    } catch (error) {
+        console.error('Error uploading profile picture:', error);
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
 };

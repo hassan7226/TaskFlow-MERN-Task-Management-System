@@ -30,7 +30,7 @@ export const UserProvider = ({ children }) => {
 
       setLoading(true)
 
-      const response = await API.get('/auth/profile')
+      const response = await API.get('/api/auth/profile')
 
       setUser(response.data.user)
 
@@ -56,7 +56,7 @@ export const UserProvider = ({ children }) => {
 
     try {
 
-      const response = await API.put('/auth/update-profile', userData)
+      const response = await API.put('/api/auth/update-profile', userData)
 
       const updatedUser = response.data.user
 

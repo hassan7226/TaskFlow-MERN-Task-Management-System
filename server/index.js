@@ -20,9 +20,7 @@ dotenv.config();
 
 const app = express();
 const allowedOrigins = [
-  "http://localhost:5173",
-  "https://taskflow-iota-liart.vercel.app",
-  process.env.FRONTEND_URL,
+  process.env.VITE_FRONTEND_URL,
 ].filter(Boolean);
 
 
@@ -40,9 +38,6 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
-//uploads folder static
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-
 //routes
 app.use("/api/auth", authRoute);
 app.use("/api/users", userRoute);
@@ -52,6 +47,11 @@ app.use("/api/invitations", invitationRoute);
 
 app.get("/", (req, res) => {
   res.send("API is running...");
+});
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
 
 export default app; 

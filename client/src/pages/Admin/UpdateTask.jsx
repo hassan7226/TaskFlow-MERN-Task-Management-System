@@ -35,7 +35,7 @@ const UpdateTask = () => {
         setFetchLoading(true)
         
         // Fetch task data
-        const taskResponse = await API.get(`/tasks/${taskId}`)
+        const taskResponse = await API.get(`/api/tasks/${taskId}`)
         const task = taskResponse.data.task
         
         setFormData({
@@ -50,7 +50,7 @@ const UpdateTask = () => {
         })
 
         // Fetch users for assignment
-        const usersResponse = await API.get('/users')
+        const usersResponse = await API.get('/api/users')
         setUsers(usersResponse.data || [])
       } catch (error) {
         console.error('Failed to fetch data:', error)
@@ -58,7 +58,7 @@ const UpdateTask = () => {
         
         // Try to get users at least
         try {
-          const authResponse = await API.get('/auth/profile')
+          const authResponse = await API.get('/api/auth/profile')
           if (authResponse.data?.user) {
             setUsers([authResponse.data.user])
           }
@@ -127,7 +127,7 @@ const UpdateTask = () => {
       const uploadPromises = files.map(async (file) => {
         const formData = new FormData()
         formData.append('image', file)
-        const response = await API.post('/auth/upload-image', formData, {
+        const response = await API.post('/api/auth/upload-image', formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         })
         return response.data.imageUrl
@@ -173,7 +173,7 @@ const UpdateTask = () => {
 
     try {
       setLoading(true)
-      await API.put(`/tasks/${taskId}`, formData)
+      await API.put(`/api/tasks/${taskId}`, formData)
       navigate('/admin/manage-tasks')
     } catch (error) {
       console.error('Failed to update task:', error)
@@ -190,7 +190,7 @@ const UpdateTask = () => {
 
     try {
       setLoading(true)
-      await API.delete(`/tasks/${taskId}`)
+      await API.delete(`/api/tasks/${taskId}`)
       navigate('/admin/manage-tasks')
     } catch (error) {
       console.error('Failed to delete task:', error)

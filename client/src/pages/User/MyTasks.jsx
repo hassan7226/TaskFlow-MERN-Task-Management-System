@@ -17,7 +17,7 @@ const MyTasks = () => {
     try {
       setLoading(true)
       setError(null)
-      const response = await API.get('/tasks')
+      const response = await API.get('/api/tasks')
       // Filter tasks assigned to current user
       const allTasks = response.data.tasks || []
       const userTasks = allTasks.filter(task => 

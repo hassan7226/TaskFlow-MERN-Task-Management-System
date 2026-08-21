@@ -1,4 +1,6 @@
 import taskModel from "../models/Task.js";
+import cloudinary from "../config/cloudinary.js";
+import { sendTaskAssignmentEmail } from "../utils/emailNotifications.js";
 
 export const getTasks = async (req, res) => {
     try{
@@ -20,24 +22,6 @@ export const getTasks = async (req, res) => {
         let tasks = await taskModel.find(filter).populate(
             "assignedTo",
              "name email  profileImageUrl").populate("createdBy", "name email profileImageUrl");
-
-        // Convert localhost URLs to production URLs for profile images
-        const baseUrl = process.env.BACKEND_URL;
-        tasks = tasks.map(task => {
-            if (task.assignedTo?.profileImageUrl && baseUrl) {
-                task.assignedTo.profileImageUrl = task.assignedTo.profileImageUrl.replace(
-                    /http:\/\/localhost:\d+/,
-                    baseUrl
-                );
-            }
-            if (task.createdBy?.profileImageUrl && baseUrl) {
-                task.createdBy.profileImageUrl = task.createdBy.profileImageUrl.replace(
-                    /http:\/\/localhost:\d+/,
-                    baseUrl
-                );
-            }
-            return task;
-        });
 
 //add todoChecklist count to each task
 
@@ -126,6 +110,29 @@ export const createTask = async (req, res) => {
             createdBy: req.user._id,
             adminId
         });
+
+        // Send email notifications to assigned users (async, don't block response)
+        if (assignedTo && assignedTo.length > 0) {
+            const creatorDetails = {
+                name: req.user.name,
+                email: req.user.email
+            };
+            
+            const taskDetails = {
+                title: task.title,
+                description: task.description,
+                priority: task.priority,
+                status: task.status,
+                dueDate: task.dueDate,
+                todoChecklist: task.todoChecklist,
+                attachments: task.attachments
+            };
+            
+            // Send email asynchronously
+            sendTaskAssignmentEmail(assignedTo, taskDetails, creatorDetails).catch(err => {
+                console.error('Failed to send task assignment email:', err);
+            });
+        }
 
         res.status(201).json({ message: "Task created successfully", task })}
         catch (error){
@@ -334,6 +341,25 @@ export const getDashboardData = async (req, res) => {
     }
     catch(error){
         res.status(500).json({ message: "Internal server error", error: error.message });
+    }
+};
+
+export const uploadTaskAttachment = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: "No file uploaded" });
+        }
+        
+        // Cloudinary stores the file and returns the URL in req.file.path
+        const fileUrl = req.file.path;
+        
+        res.status(200).json({ 
+            message: "File uploaded successfully", 
+            fileUrl 
+        });
+    } catch (error) {
+        console.error('Error uploading task attachment:', error);
+        res.status(500).json({ message: "Server error", error: error.message });
     }
 };
 

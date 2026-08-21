@@ -17,7 +17,7 @@ const Dashboard = () => {
     try {
       setLoading(true)
       setError(null)
-      const response = await API.get('/tasks/dashboard-data')
+      const response = await API.get('/api/tasks/dashboard-data')
       setDashboardData(response.data)
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error)
